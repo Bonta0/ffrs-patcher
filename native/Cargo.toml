@@ -4,6 +4,7 @@ version = "1.5.0"
 edition = "2021"
 description = "FFRS Patcher: full analog field movement + Octopath Traveler II menu sounds for FINAL FANTASY RESONANCE"
 license = "MIT"
+publish = false
 
 [lib]
 name = "dsound"

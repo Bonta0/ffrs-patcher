@@ -1,0 +1,10 @@
+{{#each crates}}
+  {{package.name}} {{package.version}}  -  {{license}}{{#if package.repository}}  -  {{package.repository}}{{/if}}
+{{/each}}
+{{#each licenses}}
+
+------------------------------------------------------------------------------
+{{{name}}}, used by: {{#each used_by}}{{crate.name}} {{crate.version}}{{#unless @last}}, {{/unless}}{{/each}}
+------------------------------------------------------------------------------
+{{{text}}}
+{{/each}}

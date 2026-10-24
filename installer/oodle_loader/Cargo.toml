@@ -4,6 +4,7 @@ name = "oodle_loader"
 version = "0.2.2"
 edition = "2021"
 license = "MIT"
+publish = false
 
 [dependencies]
 oozextract = "0.5.6"

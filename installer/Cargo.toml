@@ -4,6 +4,7 @@ version = "1.5.0"
 edition = "2021"
 description = "Installer for FFRS Patcher (FINAL FANTASY RESONANCE mod)"
 license = "MIT"
+publish = false
 
 [[bin]]
 name = "FFRS-Patcher"

@@ -1,0 +1,79 @@
+# Builds FFRS-Patcher.exe (with dsound.dll inside) and packages the release zip.
+# Every push to master: the zip is kept as a run artifact.
+# A pushed tag vX.Y.Z (matching the version in installer/Cargo.toml): also published as
+# a GitHub release.
+name: Release
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.89.0"
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-about
+
+      - name: Version
+        id: version
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' installer/Cargo.toml | head -1)
+          if [[ "$GITHUB_REF_TYPE" == tag && "$GITHUB_REF_NAME" != "v$version" ]]; then
+            echo "Tag $GITHUB_REF_NAME does not match installer/Cargo.toml version $version"
+            exit 1
+          fi
+          echo "name=FFRS_Patcher_v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build dsound.dll
+        run: cargo build --release --locked --manifest-path native/Cargo.toml
+
+      - name: Build FFRS-Patcher.exe
+        run: cargo build --release --locked --manifest-path installer/Cargo.toml --bin FFRS-Patcher
+
+      - name: Package
+        run: |
+          out="pkg/${{ steps.version.outputs.name }}"
+          mkdir -p "$out"
+          cp installer/target/release/FFRS-Patcher.exe "$out/"
+          cp release/README.txt "$out/README.txt"
+          cp LICENSE "$out/LICENSE.txt"
+          cp installer/fonts/OFL.txt "$out/OFL-AlegreyaSans.txt"
+          {
+            echo "Third-party software compiled into FFRS Patcher"
+            echo "==============================================="
+            echo
+            echo "FFRS-Patcher.exe"
+            cargo about generate --locked -c release/about.toml -m installer/Cargo.toml release/about.hbs
+            echo
+            echo "dsound.dll (installed by FFRS-Patcher.exe)"
+            cargo about generate --locked -c release/about.toml -m native/Cargo.toml release/about.hbs
+          } > "$out/THIRD-PARTY.txt"
+          (cd "$out" && 7z a -tzip "../${{ steps.version.outputs.name }}.zip" . > /dev/null)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.version.outputs.name }}
+          path: pkg/${{ steps.version.outputs.name }}.zip
+
+      - name: Publish release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "pkg/${{ steps.version.outputs.name }}.zip" \
+            --title "FFRS Patcher $GITHUB_REF_NAME" --notes-file release/README.txt

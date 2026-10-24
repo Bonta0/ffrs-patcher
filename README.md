@@ -43,3 +43,16 @@ The patcher embeds `native/target/release/dsound.dll`, so build `native/` first.
 - `theme-dev schema <FFRS.usmap> installer/src/schema.txt` regenerates `schema.txt`
   (needed only if a game update changes those types, or to edit new types) from a type
   dump of the game made with UE4SS (`DumpUSMAP`).
+
+## Releases
+
+`.github/workflows/release.yml` builds `dsound.dll` and `FFRS-Patcher.exe` and packages
+the zip players download: the patcher, `release/README.txt`, the licences and
+`THIRD-PARTY.txt` (generated with cargo-about from `release/about.toml`). Every push to
+`master` keeps the zip as a run artifact. To publish a release, set the version in
+`installer/Cargo.toml` and push a matching tag:
+
+```
+git tag v1.5.0
+git push origin v1.5.0
+```
