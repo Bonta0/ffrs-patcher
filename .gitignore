@@ -1,0 +1,12 @@
+# build outputs
+target/
+dist/
+*.stackdump
+
+# local tools and data dumped from the game: not redistributable here
+tools/
+
+# local save backups made while testing
+_save_backup_*/
+_save_backup_*.sha1
+_save_hashes_*.txt

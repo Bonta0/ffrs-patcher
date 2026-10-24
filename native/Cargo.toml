@@ -1,0 +1,38 @@
+[package]
+name = "ffrs_patcher"
+version = "1.5.0"
+edition = "2021"
+description = "FFRS Patcher: full analog field movement + Octopath Traveler II menu sounds for FINAL FANTASY RESONANCE"
+license = "MIT"
+
+[lib]
+name = "dsound"
+crate-type = ["cdylib"]
+
+[dependencies]
+retour = "0.3"
+# Octopath Traveler II sound import (reads the player's own install at startup)
+repak = { git = "https://github.com/trumank/repak", tag = "v0.2.3", default-features = false, features = ["compression"] }
+cridecoder = "0.3.7"
+windows = { version = "0.58", features = [
+    "Win32_Foundation",
+    "Win32_Media_Audio",
+    "Win32_Media_Audio_XAudio2",
+] }
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Memory",
+    "Win32_System_SystemInformation",
+    "Win32_System_SystemServices",
+    "Win32_System_Threading",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_Registry",
+] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+panic = "unwind"  # the Octopath import is guarded by catch_unwind
+strip = true

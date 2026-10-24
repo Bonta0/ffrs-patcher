@@ -1,0 +1,9 @@
+# Stands in for repak's `oodle_loader` (patched in from ../Cargo.toml), see src/lib.rs.
+[package]
+name = "oodle_loader"
+version = "0.2.2"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+oozextract = "0.5.6"
